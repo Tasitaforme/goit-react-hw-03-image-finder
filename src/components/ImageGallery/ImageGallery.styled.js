@@ -11,4 +11,6 @@ export const ImageGalleryUL = styled.ul`
   list-style: none;
   margin-left: auto;
   margin-right: auto;
+  /* padding-bottom: 16px; */
+  
 `;

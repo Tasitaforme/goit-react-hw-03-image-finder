@@ -1,15 +1,15 @@
-// import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import Searchbar from './Searchbar/Searchbar'
 import ImageGallery from './ImageGallery/ImageGallery'
-// import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem'
 import Button from './Button/Button'
-import { getGalleryImages } from './api/api'
-import { Loader } from './Loader/Loader'
 import Modal from './Modal/Modal'
+import {Loader} from './Loader/Loader'
+
+import { getGalleryImages } from './api/api'
 
 import { AppWrap } from './App.styled';
 
+import { Toaster, toast } from 'react-hot-toast';
 
 export default class App extends Component {
   state = {
@@ -31,11 +31,33 @@ export default class App extends Component {
   }
 
   handlerSearch = inputValue => {
-    if (inputValue === '' || this.state.searchQuery === inputValue) {
+    if (inputValue === '') {
+      toast.success('Start by typing a word into the search', {
+        duration: 2000,
+        icon: '🙌',
+        style: {
+          backgroundColor: '#a56403',
+          color: '#fff',
+        },
+      });
       return;
     }
 
-    this.setState({ searchQuery: inputValue, images: [], currentPage: 1 });
+    if (this.state.searchQuery === inputValue) {
+      toast.success(
+        `You have already searched for "${inputValue}", enter another word in the search`,
+        {
+          duration: 2000,
+          icon: '👌',
+          style: {
+            backgroundColor: '#5f3a02',
+            color: '#fff',
+          },
+        }
+      );
+      return;
+    }
+      this.setState({ searchQuery: inputValue, images: [], currentPage: 1 });
   };
 
   handlerLoadMore = () => {
@@ -61,14 +83,26 @@ export default class App extends Component {
         this.state.currentPage,
         imagePerPage
       );
-
+      
       this.setState(prev => ({
         images: [...prev.images, ...hits],
         showloadMore:
           this.state.currentPage < Math.ceil(totalHits / imagePerPage),
       }));
+      
+      if (this.state.currentPage === 1){
+        toast.success(`Found ${totalHits} images`, {
+          duration: 1000,
+          icon: '👏',
+          style: {
+            backgroundColor: '#3f51b5',
+            color: '#fff',
+          },
+        });
+      }
+
     } catch (error) {
-      console.log(error);
+      toast.error(`${error.message}`);
     } finally {
       this.setState({ loading: false });
     }
@@ -79,6 +113,7 @@ export default class App extends Component {
       this.state;
     return (
       <AppWrap>
+      <Toaster/>
         <Searchbar onSubmit={this.handlerSearch} />
         {images && (
           <ImageGallery images={images} onClickImage={this.handlerImage} />

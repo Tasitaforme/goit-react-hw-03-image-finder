@@ -4,13 +4,12 @@ import PropTypes from 'prop-types'
 import{ImageGalleryUL} from './ImageGallery.styled'
 
 import React, { Component } from 'react'
+import { animateScroll as scroll} from 'react-scroll';
 
 export default class ImageGallery extends Component {
   listRef = React.createRef();
 
   getSnapshotBeforeUpdate(prevProps, _) {
-    // Добавляются ли в список новые элементы?
-    // Запоминаем значение прокрутки, чтобы использовать его позже.
     if (prevProps.images.length < this.props.images.length) {
       const list = this.listRef.current;
       return list.scrollHeight - list.scrollTop;
@@ -19,33 +18,27 @@ export default class ImageGallery extends Component {
   }
 
   componentDidUpdate(_, __, snapshot) {
-    // Если снимок (snapshot) передан, значит элементы добавлены.
-    // Выравниваем прокрутку так, чтобы новые элементы не выталкивали старые.
-    // (снимок – значение, переданное из getSnapshotBeforeUpdate)
     if (snapshot !== null) {
-      const list = this.listRef.current;
-      list.scrollTop = list.scrollHeight - snapshot;
+      scroll.scrollTo(snapshot);
     }
   }
 
   render() {
     const { images, onClickImage } = this.props;
     return (
-      <div ref={this.listRef}>
-        <ImageGalleryUL>
-          {images.map(({ id, webformatURL, largeImageURL, tags }) => {
-            return (
-              <ImageGalleryItem
-                key={id}
-                src={webformatURL}
-                alt={tags}
-                largeImageURL={largeImageURL}
-                onClickImage={onClickImage}
-              />
-            );
-          })}
-        </ImageGalleryUL>
-      </div>
+      <ImageGalleryUL ref={this.listRef}>
+        {images.map(({ id, webformatURL, largeImageURL, tags }) => {
+          return (
+            <ImageGalleryItem
+              key={id}
+              src={webformatURL}
+              alt={tags}
+              largeImageURL={largeImageURL}
+              onClickImage={onClickImage}
+            />
+          );
+        })}
+      </ImageGalleryUL>
     );
   }
 }
